@@ -2,6 +2,7 @@ import User from "../models/userModel.js";
 import asyncHandler from "express-async-handler";
 import { capitalize } from "../utils/helper.js";
 import { validateRegister } from "../validators/userValidators.js";
+import { generateRefreshAndAccessToken } from "../utils/generateToken.js";
 // import { validateRegister } from "../validators/zodValidator.js";
 // import { prioritizeErrors } from "../utils/prioritizeError.js";
 
@@ -17,10 +18,9 @@ const registerUser = asyncHandler(async (req, res) => {
   // res.send({ fname, lname, email, password });
 
   const { error, value } = validateRegister(req.body);
-  console.log(error, value);
+  // console.log(error, value);
   if (error) {
     res.status(400);
-    console.log(error.details);
     throw new Error(error.details[0].message);
   }
 
@@ -44,7 +44,16 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (user) {
-    res.status(201).json({ message: "User registered successfully.!" });
+    // generateRefreshAndAccessToken(res, user._id);
+    res.status(201).json({
+      _id: user._id,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      isVerified: user.isVerified,
+      fname: user.fname,
+      lname: user.lname,
+    });
+    // res.status(201).json({ message: "User registered successfully.!" });
   } else {
     res.status(400);
     throw new Error("Registration failed.!");
